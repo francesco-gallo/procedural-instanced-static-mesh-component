@@ -4,7 +4,7 @@ An Unreal Engine 4.16 sample project to showcase a fast, lightweight and optimiz
 
 ## Usage
 
-Double mouse left-click: spawn a new table
-Double mouse right-click: remove a table
-Mouse click: drag a corner
-Mouse/WSAD: move the camera
+Double mouse left-click: spawn a new table  
+Double mouse right-click: remove a table  
+Mouse click: drag a corner  
+Mouse/WSAD: move the camera  
