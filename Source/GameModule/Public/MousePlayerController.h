@@ -27,7 +27,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// Redirect the mouse actions
-	bool InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad);
+	bool InputKey(const FInputKeyParams& Params);
 	// Finds an actor or a position under the mouse cursor
 	bool GetMouseHit(FVector& Result, AActor*& Actor);
 	// Returns the position in world space of the mouse cursor

@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ResizableTable.h"
 #include "Kismet/GameplayStatics.h"
 #include "BaseTableProceduralMeshComponent.h"
@@ -151,31 +150,39 @@ bool AResizableTable::UpdateHandlesPosition(UPrimitiveComponent* Handle, const F
 	if (Handle) {
 		const int32 HandleIndex = m_Handlers.Find(Handle);
 
-		float OppositeIndex = (HandleIndex + 2) % 4;
+		const int32 OppositeIndex = (HandleIndex + 2) % 4;
 		const UPrimitiveComponent* OppositeHandle = m_Handlers[OppositeIndex];
 		const FVector& OppositeLocation = OppositeHandle->GetComponentLocation();
 
 		FVector CorrectPosition(NewPosition);
 		// Keep the handle in its table quarter, bound by the minimum table length
 		switch (HandleIndex) {
-			case(0): {
-				CorrectPosition.X = FMath::Clamp(NewPosition.X, NewPosition.X, OppositeLocation.X - m_MinimumLength);
-				CorrectPosition.Y = FMath::Clamp(NewPosition.Y, NewPosition.Y, OppositeLocation.Y - m_MinimumLength);
+			case 0: {
+				float MaxXOpposite = OppositeLocation.X - m_MinimumLength;
+				float MaxYOpposite = OppositeLocation.Y - m_MinimumLength;
+				CorrectPosition.X = NewPosition.X > MaxXOpposite ? MaxXOpposite : NewPosition.X;
+				CorrectPosition.Y = NewPosition.Y > MaxYOpposite ? MaxYOpposite : NewPosition.Y;
 				break;
 			}
-			case(1): {
-				CorrectPosition.X = FMath::Clamp(NewPosition.X, NewPosition.X, OppositeLocation.X - m_MinimumLength);
-				CorrectPosition.Y = FMath::Clamp(NewPosition.Y, OppositeLocation.Y + m_MinimumLength, NewPosition.Y);
+			case 1: {
+				float MaxXOpposite = OppositeLocation.X - m_MinimumLength;
+				float MinYOpposite = OppositeLocation.Y + m_MinimumLength;
+				CorrectPosition.X = NewPosition.X > MaxXOpposite ? MaxXOpposite : NewPosition.X;
+				CorrectPosition.Y = NewPosition.Y < MinYOpposite ? MinYOpposite : NewPosition.Y;
 				break;
 			}
-			case(2): {
-				CorrectPosition.X = FMath::Clamp(NewPosition.X, OppositeLocation.X + m_MinimumLength, NewPosition.X);
-				CorrectPosition.Y = FMath::Clamp(NewPosition.Y, OppositeLocation.Y + m_MinimumLength, NewPosition.Y);
+			case 2: {
+				float MinXOpposite = OppositeLocation.X + m_MinimumLength;
+				float MinYOpposite = OppositeLocation.Y + m_MinimumLength;
+				CorrectPosition.X = NewPosition.X < MinXOpposite ? MinXOpposite : NewPosition.X;
+				CorrectPosition.Y = NewPosition.Y < MinYOpposite ? MinYOpposite : NewPosition.Y;
 				break;
 			}
-			case(3): {
-				CorrectPosition.X = FMath::Clamp(NewPosition.X, OppositeLocation.X + m_MinimumLength, NewPosition.X );
-				CorrectPosition.Y = FMath::Clamp(NewPosition.Y, NewPosition.Y , OppositeLocation.Y - m_MinimumLength);
+			case 3: {
+				float MinXOpposite = OppositeLocation.X + m_MinimumLength;
+				float MaxYOpposite = OppositeLocation.Y - m_MinimumLength;
+				CorrectPosition.X = NewPosition.X < MinXOpposite ? MinXOpposite : NewPosition.X;
+				CorrectPosition.Y = NewPosition.Y > MaxYOpposite ? MaxYOpposite : NewPosition.Y;
 				break;
 			} 
 		}
@@ -197,7 +204,7 @@ bool AResizableTable::UpdateHandlesPosition(UPrimitiveComponent* Handle, const F
 
 		float PrevIndex = (HandleIndex + 3) % 4;
 		float NextIndex = (HandleIndex + 1) % 4;
-		// GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::Printf(TEXT("%u, %f, %f, %s"), HandleIndex, PrevIndex, NextIndex, *CorrectPosition.ToString()));
+		// GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::Printf(TEXT("%u | CANDIDATE= %f, %f | OPPOSITE= %f, %f | NEW=%f, %f"), HandleIndex, CorrectPosition.X, CorrectPosition.Y, OppositeLocation.X, OppositeLocation.Y, NewPosition.X, NewPosition.Y));
 		UPrimitiveComponent* PrevHandle = m_Handlers[PrevIndex];
 		UPrimitiveComponent* NextHandle = m_Handlers[NextIndex];
 		FVector Prev = PrevHandle->GetComponentLocation();

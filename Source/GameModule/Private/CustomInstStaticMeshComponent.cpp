@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CustomInstStaticMeshComponent.h"
+#include <AI/NavigationSystemBase.h>
 
 void UCustomInstStaticMeshComponent::PopInstances(int32 Count) {
 	if (Count > 0) {

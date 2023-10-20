@@ -2,6 +2,7 @@
 
 
 #include "MousePlayerController.h"
+#include "GameFramework/PlayerInput.h"
 
 AMousePlayerController::AMousePlayerController()
 	: Super() {
@@ -19,16 +20,16 @@ void AMousePlayerController::BeginPlay() {
 }
 
 
-bool AMousePlayerController::InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad) {
-	const bool result = Super::InputKey(Key, EventType, AmountDepressed, bGamepad);
+bool AMousePlayerController::InputKey(const FInputKeyParams& Params) {
+	const bool result = Super::InputKey(Params);
 
-	if (result && Key.IsMouseButton()) {
-		switch (EventType) {
+	if (result && Params.Key.IsMouseButton()) {
+		switch (Params.Event) {
 			case(IE_DoubleClick): {
 				FVector HitLocation;
 				AActor* Actor;
 				if (GetMouseHit(HitLocation, Actor)) {
-					DoubleClickActor(HitLocation, Actor, Key);
+					DoubleClickActor(HitLocation, Actor, Params.Key);
 				}
 				break;
 			}
@@ -36,14 +37,14 @@ bool AMousePlayerController::InputKey(FKey Key, EInputEvent EventType, float Amo
 				FVector HitLocation;
 				AActor* Actor;
 				if (GetMouseHit(HitLocation, Actor)) {
-					PressActor(HitLocation, Actor, Key);
+					PressActor(HitLocation, Actor, Params.Key);
 				} else {
-					ReleaseActor(FVector(), m_PressedActor, Key);
+					ReleaseActor(FVector(), m_PressedActor, Params.Key);
 				}
 				break;
 			}
 			case(IE_Released): {
-				ReleaseActor(FVector(), m_PressedActor, Key);
+				ReleaseActor(FVector(), m_PressedActor, Params.Key);
 				break;
 			}
 		}
@@ -61,7 +62,7 @@ bool AMousePlayerController::GetMouseHit(FVector& Result, AActor*& Actor) {
 	FHitResult HitResult;
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECC_Visibility)) {
 		Result = HitResult.Location;
-		Actor = HitResult.Actor.Get();
+		Actor = HitResult.GetActor();
 		return true;
 	}
 	return false;

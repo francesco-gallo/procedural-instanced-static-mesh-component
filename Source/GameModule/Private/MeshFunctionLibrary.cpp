@@ -2,6 +2,7 @@
 
 
 #include "MeshFunctionLibrary.h"
+#include "PhysicsEngine/BodySetup.h"
 #include "MeshDescription.h"
 #include "ProceduralMeshConversion.h"
 #include "ProceduralMeshComponent.h"
@@ -14,7 +15,7 @@ UStaticMesh* UMeshFunctionLibrary::GetMeshFromProceduralMesh(UProceduralMeshComp
 	StaticMesh->CreateBodySetup();
 
 	if (!ProceduralMesh->bUseComplexAsSimpleCollision) {
-		UBodySetup* NewBodySetup = StaticMesh->BodySetup;
+		UBodySetup* NewBodySetup = StaticMesh->GetBodySetup();
 		NewBodySetup->BodySetupGuid = FGuid::NewGuid();
 		NewBodySetup->AggGeom.ConvexElems = ProceduralMesh->ProcMeshBodySetup->AggGeom.ConvexElems;
 		NewBodySetup->bGenerateMirroredCollision = false;
@@ -32,11 +33,14 @@ UStaticMesh* UMeshFunctionLibrary::GetMeshFromProceduralMesh(UProceduralMeshComp
 	}
 
 	for (auto* Material : UniqueMaterials) {
-		StaticMesh->StaticMaterials.Add(FStaticMaterial(Material));
+		StaticMesh->GetStaticMaterials().Add(FStaticMaterial(Material));
 	}
 
 	UStaticMesh::FBuildMeshDescriptionsParams BuildParams;
 	BuildParams.bBuildSimpleCollision = true;
+#if !(WITH_EDITOR)
+	BuildParams.bFastBuild = true;
+#endif
 	StaticMesh->BuildFromMeshDescriptions({ &MeshDescription }, BuildParams);
 
 	return StaticMesh;
